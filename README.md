@@ -52,7 +52,7 @@ Antes de incorporar la estación cliente `DESKTOP-6NENHFM` al dominio `corp.loca
 
 ---
 
-## ⚔️ Fase 4: Simulación de Ataque (Red Team — MITRE ATT&CK T1110)
+##  Fase 4: Simulación de Ataque (Red Team — MITRE ATT&CK T1110)
 
 Desde la estación `DESKTOP-6NENHFM` unida a `corp.local`, se simuló un intento de intrusión por fuerza bruta contra la cuenta `CORP\jperez` ingresando credenciales erróneas en **4 ocasiones consecutivas**. Al superar el umbral de 3 intentos definido en la GPO, el sistema denegó el acceso preventivamente.
 
