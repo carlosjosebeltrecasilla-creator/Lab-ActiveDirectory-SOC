@@ -56,7 +56,7 @@ Antes de incorporar la estación cliente `DESKTOP-6NENHFM` al dominio `corp.loca
 
 Desde la estación `DESKTOP-6NENHFM` unida a `corp.local`, se simuló un intento de intrusión por fuerza bruta contra la cuenta `CORP\jperez` ingresando credenciales erróneas en **4 ocasiones consecutivas**. Al superar el umbral de 3 intentos definido en la GPO, el sistema denegó el acceso preventivamente.
 
-![Bloqueo en Cliente Windows 10](./img/7.jpg)
+![Bloqueo en Cliente Windows 10](./img/7.png)
 
 ---
 
@@ -67,7 +67,7 @@ En el **Visor de Eventos** (`eventvwr.msc`) de `WinServer2022-DC`, se filtró el
 * **Event ID `4625` (An account failed to log on):** Registra cada uno de los intentos fallidos contra `jperez`, detallando el tipo de inicio de sesión y el motivo de fallo de contraseña.
 * **Event ID `4740` (A user account was locked out):** Confirma la activación del control defensivo y permite atribuir el origen del incidente mediante el campo **Nombre de equipo del autor de la llamada** (*Caller Computer Name*: `DESKTOP-6NENHFM`).
 
-![Evidencia en Visor de Eventos](./img/8.jpg)
+![Evidencia en Visor de Eventos](./img/8.png)
 
 ---
 
