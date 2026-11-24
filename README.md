@@ -71,7 +71,23 @@ En el **Visor de Eventos** (`eventvwr.msc`) de `WinServer2022-DC`, se filtró el
 
 ---
 
+## Fase 6: Análisis de Registros SSH y Hardening en Linux (`Debian-SOC`)
+
+Para complementar la auditoría de Active Directory (`corp.local`), desplegué un servidor **Debian 13** en modo consola (sin entorno gráfico) con el objetivo de simular la respuesta ante un ataque de fuerza bruta por SSH y proteger la integridad de los registros de auditoría:
+
+### 1. Simulación de Registro de Auditoría SSH (`auth_simulado.log`)
+Generé un archivo de registro de autenticación mediante redirección de entrada (`cat << 'eof'`) que combina un inicio de sesión legítimo desde la red interna (`10.0.10.20`) con múltiples intentos fallidos (`failed password`) dirigidos a cuentas privilegiadas e inexistentes (`root`, `admin`, `soporte`, `oracle`) desde direcciones IP externas:
+
+![Creación del registro de auditoría SSH simulado en Debian-SOC](img/9.png)
+
+### 2. Caza de IPs Atacantes y Endurecimiento de Permisos (`chmod 600`)
+* **Filtrado y conteo mediante tuberías (*pipes*):** Encadené `grep`, `sort` y `uniq -c` para aislar únicamente los eventos fallidos, extraer las direcciones IP de origen y ordenarlas por frecuencia, identificando a `45.33.32.156` y `185.220.101.45` como los atacantes principales (2 intentos cada una, seguidas de `91.240.118.172` y `185.220.101.46` con 1 intento) y descartando el tráfico legítimo de `10.0.10.20`.
+* **Protección de evidencia forense:** Apliqué `chmod 600 auth_simulado.log` (verificado con `ls -l` como `-rw-------`) para restringir la lectura y escritura exclusivamente al propietario (`analista`), evitando que otros usuarios del sistema lean o alteren los registros.
+
+![Caza de IPs atacantes y endurecimiento de permisos chmod 600](img/10.png)
 ##  Conclusiones y Remediación
 
-1. **Contención efectiva:** La combinación de políticas de bloqueo por GPO limita drásticamente la ventana de exposición frente a ataques de fuerza bruta internos dentro de la misma subred LAN.
-2. **Trazabilidad forense:** La correlación entre los eventos `4625` y `4740` permite al analista SOC aislar rápidamente la estación de trabajo comprometida (`DESKTOP-6NENHFM`) para iniciar su contención y análisis de malware.
+1. **Contención efectiva en Active Directory:** La combinación de políticas de bloqueo por GPO limita drásticamente la ventana de exposición frente a ataques de fuerza bruta internos dentro de la misma subred LAN.
+2. **Trazabilidad forense en Windows:** La correlación entre los eventos `4625` y `4740` permite al analista SOC aislar rápidamente la estación de trabajo comprometida (`DESKTOP-6NENHFM`) para iniciar su contención y análisis de malware.
+3. **Triaje de registros SSH en Linux (`Debian-SOC`):** El encadenamiento de tuberías en consola (`grep`, `sort`, `uniq -c`) agiliza la caza de amenazas sobre logs de autenticación, permitiendo aislar eventos fallidos (`failed password`), cuantificar las IPs atacantes (`45.33.32.156`, `185.220.101.45`) y descartar tráfico legítimo.
+4. **Integridad de la evidencia (`chmod 600`):** La aplicación de permisos restrictivos (`-rw-------`) protege la cadena de custodia de los registros de auditoría en entornos Linux, impidiendo que usuarios sin privilegios lean o alteren evidencia forense.
